@@ -47,9 +47,17 @@ function createMap(earthquakes) {
         accessToken: API_KEY
     });
 
+    var dark = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+        attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+        maxZoom: 18,
+        id: "dark-v10",
+        accessToken: API_KEY
+    });
+
     // Define a baseMaps object to hold our base layers
     var baseMaps = {
-        "Light Map": light
+        "Light Map": light,
+        "Dark Map": dark
     };
 
     // Create overlay object to hold our overlay layer
@@ -68,42 +76,36 @@ function createMap(earthquakes) {
 
     // Add the layer control to the map
     L.control.layers(baseMaps, overlayMaps, {
-        collapsed: true
+        collapsed: false
     }).addTo(myMap);
 
     // create legend
     var legend = L.control({position: 'bottomright'});
 
-    legend.onAdd = function (map) {
-    
+    legend.onAdd = function () {
+
         var div = L.DomUtil.create('div', 'info legend'),
-            grades = [0, 1, 2, 3, 4, 5],
+            mag = [0, 1, 2, 3, 4, 5],
             labels = [];
-    
+
+        div.innerHTML += "<h4 style='margin:4px'>Magnitude</h4>";
+
         // loop through our density intervals and generate a label with a colored square for each interval
-        for (var i = 0; i < grades.length; i++) {
+        for (var i = 0; i < mag.length; i++) {
             div.innerHTML +=
-                '<i style="background-color:' + getcolor(grades[i] + 1) + ';">'+
-                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+')+'</i>';
+                '<div class="color-box" style="background-color:' + getcolor(mag[i] + 1) + ';"></div> ' +
+                mag[i] + (mag[i + 1] ? '&ndash;' + mag[i + 1] + '<br>' : '+');
         }
-    
+
         return div;
     };
-    
     legend.addTo(myMap);
-
-    // //Overlay listener for adding
-    // myMap.on('overlayadd', function(a) {
-    //     //Add the legend
-    //     legend.addTo(myMap);
-    // });
-
 }
 
 // function for color
 function getcolor(magnitude) {
     if (magnitude > 5) {
-        return '#E31A1C'
+        return '#FF0000'
     } else if (magnitude > 4) {
         return '#FC4E2A'
     } else if (magnitude > 3) {
@@ -111,9 +113,9 @@ function getcolor(magnitude) {
     } else if (magnitude > 2) {
         return '#FED976'
     } else if (magnitude > 1) {
-        return 'lightgreen'
+        return '#9ACD32'
     } else {
-        return 'green'
+        return '#ADFF2F'
     }
 };
 
